@@ -31,10 +31,7 @@ export async function POST(req: Request) {
     // Check if API key is available (removed fs dependency for production)
     if (!process.env.OPENAI_API_KEY) {
       console.error("❌ OPENAI_API_KEY not found in environment variables")
-      return Response.json({ error: "OpenAI API key not configured" }, { status: 500 })
-    }
-
-    if (!process.env.OPENAI_API_KEY) {
+      // Return mock response instead of error to keep app functional
       // Enhanced mock response with comprehensive content
       const template = getIndustryTemplate(industry || "saas")
       const companyName = businessDescription.split(" ")[0] || "Demo"

@@ -21,11 +21,7 @@ export async function POST(req: Request) {
     // Check if API key is available (removed fs dependency for production)
     if (!process.env.OPENAI_API_KEY) {
       console.error("❌ OPENAI_API_KEY not found in environment variables")
-      return Response.json({ error: "OpenAI API key not configured" }, { status: 500 })
-    }
-
-    if (!process.env.OPENAI_API_KEY) {
-      // Mock response with curated image suggestions using verified Unsplash URLs
+      // Return mock response instead of error to keep app functional
       return Response.json({
         images: [
           {
