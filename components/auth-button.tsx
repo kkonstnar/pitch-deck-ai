@@ -1,6 +1,5 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
@@ -10,48 +9,48 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { LogIn, LogOut } from "lucide-react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-
-interface AuthUser {
-  id: string
-  name: string
-  email: string
-  picture: string
-}
+import { LogIn, LogOut, User } from "lucide-react"
+import { useAuth } from "@/context/auth-context"
 
 export function AuthButton() {
-  const [user, setUser] = useState<AuthUser | null>(null)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const router = useRouter()
+  const { user, loading, signInWithGoogle, signOut } = useAuth()
 
-  useEffect(() => {
-    const savedUser = localStorage.getItem("user")
-    const authStatus = localStorage.getItem("isAuthenticated")
-
-    if (savedUser && authStatus === "true") {
-      setUser(JSON.parse(savedUser))
-      setIsAuthenticated(true)
+  const handleSignIn = async () => {
+    try {
+      await signInWithGoogle()
+    } catch (error) {
+      console.error('Sign in failed:', error)
     }
-  }, [])
-
-  const handleLogout = () => {
-    localStorage.removeItem("user")
-    localStorage.removeItem("isAuthenticated")
-    setUser(null)
-    setIsAuthenticated(false)
-    router.push("/")
   }
 
-  if (!isAuthenticated || !user) {
+  const handleSignOut = async () => {
+    try {
+      await signOut()
+    } catch (error) {
+      console.error('Sign out failed:', error)
+    }
+  }
+
+  if (loading) {
     return (
-      <Link href="/auth">
-        <Button variant="outline" size="sm" className="border-gray-300 hover:bg-gray-50 bg-transparent">
-          <LogIn className="w-4 h-4 mr-2" />
-          Sign In
-        </Button>
-      </Link>
+      <Button variant="outline" size="sm" disabled className="border-gray-300 bg-transparent">
+        <div className="w-4 h-4 mr-2 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600"></div>
+        Loading...
+      </Button>
+    )
+  }
+
+  if (!user) {
+    return (
+      <Button 
+        onClick={handleSignIn}
+        variant="outline" 
+        size="sm" 
+        className="border-gray-300 hover:bg-gray-50 bg-transparent"
+      >
+        <LogIn className="w-4 h-4 mr-2" />
+        Sign In with Google
+      </Button>
     )
   }
 
@@ -61,11 +60,11 @@ export function AuthButton() {
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
             <AvatarImage
-              src={user.picture || "/placeholder.svg?height=40&width=40&query=user%20avatar" || "/placeholder.svg"}
-              alt={user.name}
+              src={user.user_metadata?.avatar_url || "/placeholder.svg"}
+              alt={user.user_metadata?.full_name || user.email}
             />
             <AvatarFallback>
-              {user.name
+              {(user.user_metadata?.full_name || user.email || 'U')
                 .split(" ")
                 .map((n) => n[0])
                 .join("")
@@ -77,14 +76,17 @@ export function AuthButton() {
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <div className="flex items-center justify-start gap-2 p-2">
           <div className="flex flex-col space-y-1 leading-none">
-            <p className="font-medium">{user.name}</p>
+            <p className="font-medium">{user.user_metadata?.full_name || user.email}</p>
             <p className="w-[200px] truncate text-sm text-muted-foreground">{user.email}</p>
           </div>
         </div>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>{/* Profile icon and text will be added here */}</DropdownMenuItem>
+        <DropdownMenuItem>
+          <User className="mr-2 h-4 w-4" />
+          <span>Profile</span>
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleLogout}>
+        <DropdownMenuItem onClick={handleSignOut}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>Log out</span>
         </DropdownMenuItem>
