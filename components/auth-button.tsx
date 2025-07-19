@@ -16,19 +16,11 @@ export function AuthButton() {
   const { user, loading, signInWithGoogle, signOut } = useAuth()
 
   const handleSignIn = async () => {
-    try {
-      await signInWithGoogle()
-    } catch (error) {
-      console.error('Sign in failed:', error)
-    }
+    await signInWithGoogle()
   }
 
   const handleSignOut = async () => {
-    try {
-      await signOut()
-    } catch (error) {
-      console.error('Sign out failed:', error)
-    }
+    await signOut()
   }
 
   if (loading) {

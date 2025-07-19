@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { User, Session } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
+import { toast } from 'sonner'
 
 interface AuthContextType {
   user: User | null
@@ -37,6 +38,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSession(session)
         setUser(session?.user ?? null)
         setLoading(false)
+        
+        if (event === 'SIGNED_IN') {
+          toast.success('Successfully signed in!')
+        } else if (event === 'SIGNED_OUT') {
+          toast.success('Successfully signed out!')
+        }
       }
     )
 
@@ -54,10 +61,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       if (error) {
         console.error('Error signing in with Google:', error.message)
+        toast.error('Failed to sign in with Google')
         throw error
       }
     } catch (error) {
       console.error('Google sign-in error:', error)
+      toast.error('Failed to sign in with Google')
       throw error
     }
   }
@@ -67,10 +76,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { error } = await supabase.auth.signOut()
       if (error) {
         console.error('Error signing out:', error.message)
+        toast.error('Failed to sign out')
         throw error
       }
     } catch (error) {
       console.error('Sign out error:', error)
+      toast.error('Failed to sign out')
       throw error
     }
   }
