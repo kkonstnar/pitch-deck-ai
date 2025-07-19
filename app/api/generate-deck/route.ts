@@ -28,22 +28,10 @@ export async function POST(req: Request) {
     console.log("🔑 OpenAI API Key present:", !!process.env.OPENAI_API_KEY)
     console.log("🔑 API Key length:", process.env.OPENAI_API_KEY?.length || 0)
     
-    // Force load API key from .env.local if not in environment
+    // Check if API key is available (removed fs dependency for production)
     if (!process.env.OPENAI_API_KEY) {
-      try {
-        const fs = require('fs')
-        const path = require('path')
-        const envPath = path.join(process.cwd(), '.env.local')
-        const envContent = fs.readFileSync(envPath, 'utf8')
-        const lines = envContent.split('\n')
-        const openaiLine = lines.find((line: string) => line.startsWith('OPENAI_API_KEY='))
-        if (openaiLine) {
-          process.env.OPENAI_API_KEY = openaiLine.split('=')[1]
-          console.log("🔑 Loaded API key from .env.local file")
-        }
-      } catch (error) {
-        console.log("❌ Error loading .env.local:", (error as Error).message)
-      }
+      console.error("❌ OPENAI_API_KEY not found in environment variables")
+      return Response.json({ error: "OpenAI API key not configured" }, { status: 500 })
     }
 
     if (!process.env.OPENAI_API_KEY) {
