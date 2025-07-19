@@ -151,13 +151,58 @@ export async function exportToPDF(slides: Slide[], deckTitle: string, deckDescri
 }
 
 export async function exportToPPTX(slides: Slide[], deckTitle: string, deckDescription?: string) {
-  // Temporarily disabled PPTX export due to Node.js compatibility issues
-  // Will be implemented as a server-side API endpoint
   try {
-    console.log('PPTX export requested for:', deckTitle)
-    throw new Error('PPTX export is temporarily unavailable. Please use PDF export instead.')
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+    
+    const exportData = {
+      deckTitle,
+      deckDescription,
+      slides: slides.map(slide => ({
+        id: slide.id,
+        type: slide.type,
+        title: slide.title,
+        content: slide.content,
+        suggestedImages: slide.suggestedImages,
+        speakerNotes: slide.speakerNotes,
+        mediaUrls: slide.mediaUrls,
+        mediaDescriptions: slide.mediaDescriptions,
+      }))
+    };
+
+    const response = await fetch(`${apiUrl}/export/pptx`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(exportData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+      throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+    }
+
+    // Get the file as a blob
+    const blob = await response.blob();
+    
+    // Create download link
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    a.href = url;
+    a.download = `${deckTitle.replace(/[^a-zA-Z0-9]/g, '_')}_pitch_deck.pptx`;
+    
+    // Trigger download
+    document.body.appendChild(a);
+    a.click();
+    
+    // Cleanup
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+    
+    return { success: true, fileName: a.download };
   } catch (error) {
-    console.error('PPTX export error:', error)
-    throw new Error('PPTX export is temporarily unavailable. Please use PDF export instead.')
+    console.error('PPTX export error:', error);
+    throw new Error(`Failed to export PPTX: ${error.message}`);
   }
 }
