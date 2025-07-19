@@ -25,6 +25,7 @@ An AI-powered pitch deck generator that helps entrepreneurs and businesses creat
 - **User Authentication**: Secure login with Supabase Auth
 - **Cloud Storage**: Save and manage multiple pitch decks
 - **Version Control**: Track slide changes and revisions
+- **Sample Database**: Pre-populated with realistic pitch decks across 5 industries
 - **Collaboration Ready**: Multi-user support with proper data isolation
 
 ### 🔧 Developer Features
@@ -119,7 +120,19 @@ cp backend/pitch-deck-backend/.env.example backend/pitch-deck-backend/.env
 ### 4. Configure Environment Variables
 See [SETUP.md](./docs/SETUP.md) for detailed configuration instructions.
 
-### 5. Start Development Servers
+### 5. Populate Sample Database (Optional)
+```bash
+# Navigate to seeding directory
+cd backend/pitch-deck-backend/database/seeds
+
+# Seed with sample pitch decks across 5 industries
+node seed.js --reset
+
+# Or create sample users and seed data
+node seed.js --users --reset
+```
+
+### 6. Start Development Servers
 ```bash
 # Terminal 1: Frontend
 npm run dev
@@ -136,6 +149,7 @@ Visit `http://localhost:3000` to see the application.
 - **[Setup & Deployment Guide](./docs/SETUP.md)** - Complete installation and deployment instructions
 - **[API Documentation](./docs/API.md)** - Backend API endpoints and usage
 - **[User Guide](./docs/USER_GUIDE.md)** - How to use the application
+- **[Sample Database Guide](./docs/SAMPLE_DATABASE.md)** - Pre-populated sample data across 5 industries
 - **[Troubleshooting](./docs/TROUBLESHOOTING.md)** - Common issues and solutions
 
 ## 🔑 Environment Variables
