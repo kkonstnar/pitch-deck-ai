@@ -4,8 +4,11 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { AlertCircle } from "lucide-react"
 import Link from "next/link"
+import { useSearchParams } from "next/navigation"
 
 export default function AuthError() {
+  const searchParams = useSearchParams()
+  const reason = searchParams.get('reason')
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
@@ -21,7 +24,13 @@ export default function AuthError() {
           <p className="text-gray-600 text-center">
             There was an error signing you in. This could be due to:
           </p>
+          {reason && (
+            <div className="bg-red-50 border border-red-200 rounded p-3">
+              <p className="text-sm text-red-700">Error reason: {reason}</p>
+            </div>
+          )}
           <ul className="text-sm text-gray-500 space-y-1">
+            <li>• Invalid Supabase configuration</li>
             <li>• Network connectivity issues</li>
             <li>• Authentication service temporarily unavailable</li>
             <li>• Invalid or expired authentication request</li>
